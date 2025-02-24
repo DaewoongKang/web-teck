@@ -36,7 +36,7 @@
         body[tab="tab3"] div.tab3 {
             display: block;
         }
-        
+
         body[tab="tab1"] button.tab1,
         body[tab="tab2"] button.tab2,
         body[tab="tab3"] button.tab3 {
@@ -45,7 +45,7 @@
     </style>
     <script>
         onload = () => {
-            const tab = document.querySelector('.tab');
+            const tab = document.querySelector('.tab');//event bubbling
             tab.addEventListener('click', function(event) {
                 const tabName = event.target.className;
                 document.body.setAttribute('tab', tabName);
