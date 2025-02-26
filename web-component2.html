@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Component function type extend</title>
+<script>
+function Reorder() {
+    return Reflect.construct(HTMLElement, [], this.constructor);
+}
+
+Object.setPrototypeOf(Reorder.prototype, HTMLElement.prototype);
+Object.setPrototypeOf(Reorder, HTMLElement);
+
+Reorder.prototype.connectedCallback = function() {
+    this.count = this.getAttribute('count');
+}
+
+Reorder.prototype.run = function() {
+    const multiply = this.children.length - 0.01;
+    for (let i = 0; i < this.count; i++) {
+        const first = Math.floor(Math.random() * multiply);
+        const second = Math.floor(Math.random() * multiply);
+
+        if (first !== second) {
+            this.swap(first, second);
+        }
+    }
+}
+
+Reorder.prototype.swap = function(first, second) {
+    const firstElement = this.children[first];
+    const secondElement = this.children[second];
+    const firstClone = firstElement.cloneNode(true);
+    const secondClone = secondElement.cloneNode(true);
+    firstElement.replaceWith(secondClone);
+    secondElement.replaceWith(firstClone);
+}
+
+Reorder.observedAttributes = ['count'];
+Reorder.prototype.attributeChangedCallback = function (name, _, newValue) {
+    if (name === 'count') {
+        this.count = parseInt(newValue);
+    }
+}
+ 
+customElements.define('re-order', Reorder);
+</script>
+<script> 
+function Reorder2() {
+    return Reflect.construct(Reorder, [], this.constructor);
+}
+
+Object.setPrototypeOf(Reorder2.prototype, Reorder.prototype);
+Object.setPrototypeOf(Reorder2, Reorder);
+
+
+Reorder2.prototype.run = function() {
+    const multiply = this.children.length - 0.01;
+    let i = 0;
+
+    const swapWithDelay = () => {
+        if (i < this.count) {
+            const first = Math.floor(Math.random() * multiply);
+            const second = Math.floor(Math.random() * multiply);
+
+            if (first !== second) {
+                this.swap(first, second);
+            }
+
+            i++;
+            setTimeout(swapWithDelay, 500);
+        }
+    };
+
+    swapWithDelay();
+}
+ 
+customElements.define('re-order2', Reorder2);
+</script>
+<script>
+onload = _ => {
+    const button = document.querySelector('button');
+
+    button.addEventListener('click', function() {
+        const reorder2 = document.querySelector('re-order2');
+        reorder2.run();
+    });
+}
+</script>
+<style>
+    re-order2 div {
+        border: 1px solid black;
+        padding: 10px;
+        margin: 10px;
+    }
+</style>
+</head>
+<body>
+    <h1>Web Component Extend Example</h1>
+    <re-order2 count="5">
+        <div>10</div>
+        <div>20</div>
+        <div>30</div>
+        <div>40</div>
+        <div>50</div>
+    </re-order2>
+    <button>reorder</button>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Component function type example</title>
+<script>
+function Reorder() {
+    return Reflect.construct(HTMLElement, [], this.constructor);
+}
+
+Object.setPrototypeOf(Reorder.prototype, HTMLElement.prototype);
+Object.setPrototypeOf(Reorder, HTMLElement);
+
+Reorder.prototype.connectedCallback = function() {
+    this.count = this.getAttribute('count');
+}
+
+Reorder.prototype.run = function() {
+    const multiply = this.children.length - 0.01;
+    for (let i = 0; i < this.count; i++) {
+        const first = Math.floor(Math.random() * multiply);
+        const second = Math.floor(Math.random() * multiply);
+
+        if (first !== second) {
+            this.swap(first, second);
+        }
+    }
+}
+
+Reorder.prototype.swap = function(first, second) {
+    const firstElement = this.children[first];
+    const secondElement = this.children[second];
+    const firstClone = firstElement.cloneNode(true);
+    const secondClone = secondElement.cloneNode(true);
+    firstElement.replaceWith(secondClone);
+    secondElement.replaceWith(firstClone);
+}
+
+Reorder.observedAttributes = ['count'];
+Reorder.prototype.attributeChangedCallback = function (name, _, newValue) {
+    if (name === 'count') {
+        this.count = parseInt(newValue);
+    }
+}
+ 
+customElements.define('re-order', Reorder);
+</script>
+<script>
+onload = _ => {
+    const button = document.querySelector('button');
+
+    button.addEventListener('click', function() {
+    const reorder = document.querySelector('re-order');
+    reorder.run();
+});
+}
+</script>
+<style>
+    re-order div {
+        border: 1px solid black;
+        padding: 10px;
+        margin: 10px;
+    }
+</style>
+</head>
+<body>
+    <h1>Web Component Creation Example</h1>
+    <re-order count="5">
+        <div>1</div>
+        <div>2</div>
+        <div>3</div>
+        <div>4</div>
+        <div>5</div>
+    </re-order>
+    <button>reorder</button>
+</body>
+</html>
